@@ -35,20 +35,20 @@ class AppController extends Controller {
 	public $components = array(
 		'DebugKit.Toolbar',
 		'Session',
-        'Auth' => array( //ログイン機能を利用する
-                //ログイン後の移動先
-                'loginRedirect' => array('controller' => 'makes', 'action' => 'index'),
-                //ログアウト後の移動先
-                'logoutRedirect' => array('controller' => 'users', 'action' => 'login'),
-                //ログインページのパス
-                'loginAction' => array('controller' => 'users', 'action' => 'login'),
-                //未ログイン時のメッセージ
-                'authError' => 'あなたの学籍番号とパスワードを入力して下さい。',
-            )
+        // 'Auth' => array( //ログイン機能を利用する
+        //         //ログイン後の移動先
+        //         'loginRedirect' => array('controller' => 'makes', 'action' => 'index'),
+        //         //ログアウト後の移動先
+        //         'logoutRedirect' => array('controller' => 'users', 'action' => 'login'),
+        //         //ログインページのパス
+        //         'loginAction' => array('controller' => 'users', 'action' => 'login'),
+        //         //未ログイン時のメッセージ
+        //         'authError' => 'あなたの学籍番号とパスワードを入力して下さい。',
+        //     )
 	);
     public function beforeFilter() {
         // 認証不要のアクション指定（AppControllerなので複数のコントローラ間で横断的に指定していることを意味）
-        $this->Auth->allow('useradd');
+        // $this->Auth->allow('useradd');
         // $this->layout = 'bootstrap';
     }
 
