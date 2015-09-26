@@ -2,7 +2,7 @@
 App::uses('AppController', 'Controller');
 
 class MakesController extends AppController {
-	public $uses = array('User');
+	public $uses = array('User','Knowledge');
 
 	public function index(){
 
@@ -11,7 +11,7 @@ class MakesController extends AppController {
 	public function input_keyword(){
 		$this->layout = 'default_make';
 	}
-	
+
 
 
 	// public $uses = array('User','Question','Time','Template','Property1st','Property2nd','Object','FunctionQuestion');
