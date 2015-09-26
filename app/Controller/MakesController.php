@@ -8,8 +8,14 @@ class MakesController extends AppController {
 
 	}
 
-	public function input_keyword(){
+	public function inputKeyword(){
 		$this->layout = 'default_make';
+
+	}
+	public function showKeywordsList(){
+		$keyword = $this->request->data['Make']['keyword'];
+		$keywords_list = $this->Knowledge->remove_duplicate_list($keyword);
+		debug($keywords_list);
 	}
 
 

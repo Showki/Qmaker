@@ -2,9 +2,14 @@
 <head><?php echo $scripts_for_layout ?></head>
  -->
 <html>
-<?php echo $this->Html->css('login'); ?>
 
-<?php echo $this->Form->create('Make'); ?>
+
+
+<?php echo $this->Form->create('Make',array(
+    'type' => 'post',
+    'action' => 'showKeywordsList'
+));
+?>
 <?php echo $this->Form->input('Make.keyword',array(
     'type' => 'text',
     'label' => 'キーワードを入力してください',
