@@ -9,11 +9,12 @@ class UsersController extends AppController {
 	}
 	public function login() {
 		$this->layout = 'bootstrap';
+		// $this->layout = 'default_make';
 	    if($this->request->is('post')) {
 	        if($this->Auth->login()) {
 	            $this->redirect($this->Auth->redirect());
 	        }else{
-	            $this->Session->setFlash(__('IDかパスワードが違うみたいなので確認してください'));
+	            $this->Session->setFlash(__('IDまたはパスワードが違います'));
 	        }
 	    }
 	}

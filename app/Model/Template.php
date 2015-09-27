@@ -3,10 +3,8 @@ class Template extends AppModel{
 	public $name = 'Template';
 
 	public function generateQuestions($searched_knowledge,$object_list){
-
 		App::import('Model','Knowledge');
 		$Knowledge = new Knowledge;
-		// return $result;
 
 		$question_num = 0;
 		$templates_list = $this->find('all');
@@ -56,7 +54,7 @@ class Template extends AppModel{
 									$template['Template']['answer']
 								);
 								$maked_question[$question_num]['use_template'] = $template['Template']['id'];
-								$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1X['id'].",".$knowledge_to_P1Y['id'];
+								$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1X['id'].','.$knowledge_to_P1Y['id'];
 								$question_num++;
 							}
 						}
@@ -90,7 +88,7 @@ class Template extends AppModel{
 									$template['Template']['answer']
 								);
 								$maked_question[$question_num]['use_template'] = $template['Template']['id'];
-								$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1O1['id'].",".$knowledge_to_P2O2['id'];
+								$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1O1['id'].','.$knowledge_to_P2O2['id'];
 								$question_num++;
 							}
 						}
@@ -131,7 +129,7 @@ class Template extends AppModel{
 											$template['Template']['answer']
 										);
 										$maked_question[$question_num]['use_template'] = $template['Template']['id'];
-										$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1_O1_Y['id'].",".$knowledge_to_P1_O1_X_id;
+										$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1_O1_Y['id'].','.$knowledge_to_P1_O1_X_id;
 										$question_num++;
 									}
 								// }
@@ -174,7 +172,7 @@ class Template extends AppModel{
 											$template['Template']['answer']
 										);
 										$maked_question[$question_num]['use_template'] = $template['Template']['id'];
-										$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P2_O2['id'].",".$knowledge_to_P1_O1_id;
+										$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P2_O2['id'].','.$knowledge_to_P1_O1_id;
 										$question_num++;
 									}
 								}
@@ -218,21 +216,13 @@ class Template extends AppModel{
 								$maked_question[$question_num]['answer']
 							);
 							$maked_question[$question_num]['use_template'] = $template['Template']['id'];
-							$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1['id'].",".$knowledge_to_P2O2['id'];
+							$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1['id'].','.$knowledge_to_P2O2['id'];
 							$question_num++;
 						}
 					}
 				}
 			}
 		}
-
-
-
-		// return $maked_question;
-		// return $searched_knowledge;
-		$result['maked_question'] = $maked_question;
-		// $result['searched_knowledge'] = $searched_knowledge;
-		return $result;
-		// return $searched_knowledge_by_object_name;
+		return $maked_question;
 	}
 }
