@@ -3,7 +3,7 @@
  -->
 <html>
 
-
+<?php echo $this->Session->flash(); ?>
 
 <?php echo $this->Form->create('Make',array(
     'type' => 'post',

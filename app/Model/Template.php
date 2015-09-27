@@ -2,195 +2,227 @@
 class Template extends AppModel{
 	public $name = 'Template';
 
-	public function funtion_making($data){
-		$templates = $this->find('all');
-			foreach ($data['associate1'] as $a1_key => $a1_value) {
-				foreach ($data['associate2'] as $a2_key => $a2_value) {
-					foreach ($templates as $tmp_key => $tmp_value) {
-						$question = $tmp_value['Template']['question'];
-						if(strstr($question,'O')){ //object1を挿入
-							$question = str_replace("[O]",$a1_value['Objective']['object'],$question);
+	public function generateQuestions($searched_knowledge,$object_list){
+		App::import('Model','Knowledge');
+		$Knowledge = new Knowledge;
+
+		$question_num = 0;
+		$templates_list = $this->find('all');
+
+		foreach ($searched_knowledge as $knowledge_row => $knowledge){
+			if($knowledge['Knowledge']['level_flag'] == 1){
+				$knowledge_level_is_1[$knowledge_row]['id'] = $knowledge['Knowledge']['id'];
+				$knowledge_level_is_1[$knowledge_row]['resources_id'] = $knowledge['Knowledge']['resources_id'];
+				$knowledge_level_is_1[$knowledge_row]['categories_id'] = $knowledge['Knowledge']['categories_id'];
+				$knowledge_level_is_1[$knowledge_row]['target_knowledge'] = $knowledge['Knowledge']['target_knowledge'];
+				$knowledge_level_is_1[$knowledge_row]['object'] = $knowledge['Knowledge']['object'];
+				$knowledge_level_is_1[$knowledge_row]['property'] = $knowledge['Knowledge']['property'];
+				$knowledge_level_is_1[$knowledge_row]['level_flag'] = $knowledge['Knowledge']['level_flag'];
+			}
+			if($knowledge['Knowledge']['level_flag'] == 2){
+				$knowledge_level_is_2[$knowledge_row]['id'] = $knowledge['Knowledge']['id'];
+				$knowledge_level_is_2[$knowledge_row]['resources_id'] = $knowledge['Knowledge']['resources_id'];
+				$knowledge_level_is_2[$knowledge_row]['categories_id'] = $knowledge['Knowledge']['categories_id'];
+				$knowledge_level_is_2[$knowledge_row]['target_knowledge'] = $knowledge['Knowledge']['target_knowledge'];
+				$knowledge_level_is_2[$knowledge_row]['object'] = $knowledge['Knowledge']['object'];
+				$knowledge_level_is_2[$knowledge_row]['property'] = $knowledge['Knowledge']['property'];
+				$knowledge_level_is_2[$knowledge_row]['level_flag'] = $knowledge['Knowledge']['level_flag'];
+			}
+		}
+
+		foreach ($templates_list as $template) {
+			if($template['Template']['id'] == 1){
+				// 知識レベルが１のもののみ抽出
+				foreach ($knowledge_level_is_1 as $knowledge_to_P1X) {
+					foreach ($knowledge_level_is_1 as $knowledge_to_P1Y) {
+						if(isset($knowledge_to_P1Y)){
+							// 同一のプロパティは二度挿入しない
+							if($knowledge_to_P1X['id'] != $knowledge_to_P1Y['id']){
+								$maked_question[$question_num]['sentence'] = str_replace(
+									"[P1X]",
+									$knowledge_to_P1X['property'],
+									$template['Template']['sentence']
+								);
+								$maked_question[$question_num]['sentence'] = str_replace(
+									"[P1Y]",
+									$knowledge_to_P1Y['property'],
+									$maked_question[$question_num]['sentence']
+								);
+								$maked_question[$question_num]['answer'] = str_replace(
+									"[O1]",
+									$knowledge_to_P1Y['object'],
+									$template['Template']['answer']
+								);
+								$maked_question[$question_num]['use_template'] = $template['Template']['id'];
+								$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1X['id'].','.$knowledge_to_P1Y['id'];
+								$question_num++;
+							}
 						}
-						if(strstr($question,'OO')){ //object1を挿入
-							$question = str_replace("[OO]",$a2_value['Object2id']['object'],$question);
+					}
+				}
+			}else if($template['Template']['id'] == 2){
+				if(isset($knowledge_level_is_1) && isset($knowledge_level_is_2)){
+					foreach ($knowledge_level_is_1 as $knowledge_to_P1O1) {
+						foreach ($knowledge_level_is_2 as $knowledge_to_P2O2) {
+							if(stristr($knowledge_to_P2O2['property'],$knowledge_to_P1O1['object'])){
+								$maked_question[$question_num]['sentence'] = str_replace(
+									'[P1]',
+									$knowledge_to_P1O1['property'],
+									' [P1] である [O1] '
+								);
+								$maked_question[$question_num]['sentence'] = str_replace(
+									"[O1]",
+									$knowledge_to_P1O1['object'],
+									$maked_question[$question_num]['sentence']
+								);
+
+								$maked_question[$question_num]['sentence'] = str_replace(
+									$knowledge_to_P1O1['object'],
+									$maked_question[$question_num]['sentence'],
+									$knowledge_to_P2O2['property'].' のは何か'
+								);
+
+								$maked_question[$question_num]['answer'] = str_replace(
+									"[O2]",
+									$knowledge_to_P2O2['object'],
+									$template['Template']['answer']
+								);
+								$maked_question[$question_num]['use_template'] = $template['Template']['id'];
+								$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1O1['id'].','.$knowledge_to_P2O2['id'];
+								$question_num++;
+							}
 						}
-						if(strstr($question,'1P')){ //object1を挿入
-							$question = str_replace("[1P]",$a1_value['Property1st']['property1st'],$question);
+					}
+				}
+			}else if($template['Template']['id'] == 3){
+				if(isset($knowledge_level_is_1)){
+					foreach ($knowledge_level_is_1 as $knowledge_to_P1_O1_Y) {
+						foreach ($object_list as $object_name) {
+							if(stristr($knowledge_to_P1_O1_Y['property'],$object_name) && ($object_name != $knowledge_to_P1_O1_Y['object'])){
+								$searched_knowledge_by_object_name = $Knowledge->find('list',array(
+									'fields' => array('Knowledge.id','Knowledge.property'),
+									'conditions' => array(
+										'Knowledge.object' => $object_name,
+										'Knowledge.level_flag' => 1)
+								));
+								// if(isset($searched_knowledge_by_object_name)){
+									foreach ($searched_knowledge_by_object_name as $knowledge_to_P1_O1_X_id => $knowledge_to_P1_O1_X) {
+										// return $knowledge_to_P1_O1_X;
+										$maked_question[$question_num]['sentence'] = str_replace(
+											"[P1X]",
+											$knowledge_to_P1_O1_X,
+											" [P1X] である [O1X] "
+										);
+										$maked_question[$question_num]['sentence'] = str_replace(
+											"[O1X]",
+											$object_name,
+											$maked_question[$question_num]['sentence']
+										);
+										$maked_question[$question_num]['sentence'] = str_replace(
+											$object_name,
+											$maked_question[$question_num]['sentence'],
+											$knowledge_to_P1_O1_Y['property'].' のは何か'
+										);
+										$maked_question[$question_num]['answer'] = str_replace(
+											"[O1Y]",
+											$knowledge_to_P1_O1_Y['object'],
+											$template['Template']['answer']
+										);
+										$maked_question[$question_num]['use_template'] = $template['Template']['id'];
+										$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1_O1_Y['id'].','.$knowledge_to_P1_O1_X_id;
+										$question_num++;
+									}
+								// }
+							}
 						}
-						if(strstr($question,'2P')){ //object1を挿入
-							$question = str_replace("[2P]",$a2_value['Property2nd']['property2nd'],$question);
+					}
+				}
+			}else if($template['Template']['id'] == 4){
+				if(isset($knowledge_level_is_2)){
+					foreach ($knowledge_level_is_2 as $knowledge_to_P2_O2) {
+						foreach ($object_list as $object_name) {
+							if(stristr($knowledge_to_P2_O2['property'],$object_name) && ($object_name != $knowledge_to_P2_O2['object'])){
+								$searched_knowledge_by_object_name = $Knowledge->find('list',array(
+									'fields' => array('Knowledge.id','Knowledge.property'),
+									'conditions' => array(
+										'Knowledge.object' => $object_name,
+										'Knowledge.level_flag' => 1)
+								));
+								if(isset($searched_knowledge_by_object_name)){
+									foreach ($searched_knowledge_by_object_name as $knowledge_to_P1_O1_id => $knowledge_to_P1_O1) {
+										// return $knowledge_to_P1_O1_X;
+										$maked_question[$question_num]['sentence'] = str_replace(
+											"[P1]",
+											$knowledge_to_P1_O1,
+											" [P1] である [O1] "
+										);
+										$maked_question[$question_num]['sentence'] = str_replace(
+											"[O1]",
+											$object_name,
+											$maked_question[$question_num]['sentence']
+										);
+										$maked_question[$question_num]['sentence'] = str_replace(
+											$object_name,
+											$maked_question[$question_num]['sentence'],
+											$knowledge_to_P2_O2['property'].' のは何か'
+										);
+										$maked_question[$question_num]['answer'] = str_replace(
+											"[O2]",
+											$knowledge_to_P2_O2['object'],
+											$template['Template']['answer']
+										);
+										$maked_question[$question_num]['use_template'] = $template['Template']['id'];
+										$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P2_O2['id'].','.$knowledge_to_P1_O1_id;
+										$question_num++;
+									}
+								}
+							}
 						}
-						$answer = $tmp_value['Template']['answer'];
-						if(strstr($answer,'O')){ //object1を挿入
-							$answer = str_replace("[O]",$a1_value['Objective']['object'],$answer);
+					}
+				}
+			}else if($template['Template']['id'] == 5){
+				foreach ($knowledge_level_is_1 as $knowledge_to_P1O1) {
+					$maked_question[$question_num]['sentence'] = str_replace(
+						"[O1]",
+						$knowledge_to_P1O1['object'],
+						$template['Template']['sentence']
+					);
+					$maked_question[$question_num]['answer'] = str_replace(
+						"[P1]",
+						$knowledge_to_P1O1['property'],
+						$template['Template']['answer']
+					);
+					$maked_question[$question_num]['use_template'] = $template['Template']['id'];
+					$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1O1['id'];
+					$question_num++;
+				}
+			}else if($template['Template']['id'] == 6){
+				if(isset($knowledge_level_is_2)){
+					foreach ($knowledge_level_is_1 as $knowledge_to_P1) {
+						foreach ($knowledge_level_is_2 as $knowledge_to_P2O2) {
+							$maked_question[$question_num]['sentence'] = str_replace(
+								"[O1]",
+								$knowledge_to_P1O1['object'],
+								$template['Template']['sentence']
+							);
+							$maked_question[$question_num]['answer'] = str_replace(
+								"[P2]",
+								$knowledge_to_P2O2['property'],
+								$template['Template']['answer']
+							);
+							$maked_question[$question_num]['answer'] = str_replace(
+								"[O2]",
+								$knowledge_to_P2O2['object'],
+								$maked_question[$question_num]['answer']
+							);
+							$maked_question[$question_num]['use_template'] = $template['Template']['id'];
+							$maked_question[$question_num]['use_knowledge'] = $knowledge_to_P1['id'].','.$knowledge_to_P2O2['id'];
+							$question_num++;
 						}
-						if(strstr($answer,'OO')){ //object1を挿入
-							$answer = str_replace("[OO]",$a2_value['Object2id']['object'],$answer);
-						}
-						if(strstr($answer,'1P')){ //object1を挿入
-							$answer = str_replace("[1P]",$a1_value['Property1st']['property1st'],$answer);
-						}
-						if(strstr($answer,'2P')){ //object1を挿入
-							$answer = str_replace("[2P]",$a2_value['Property2nd']['property2nd'],$answer);
-						}
-						$questions['function_make_question'] = $question;
-						$questions['function_make_answer'] = $answer;
-						$questions['use_templates_id'] = $tmp_value['Template']['id'];
-						$questions['use_templates_question'] = $tmp_value['Template']['question'];
-						$questions['use_templates_answer'] = $tmp_value['Template']['answer'];
-						// $test_box[] = $a1_value['Objective']['object'];
-						$output_data[] = $questions;
 					}
 				}
 			}
-			// return $question_box;
-			return $output_data;
-	}
-
-
-	public function generate($data){
-		$templates = $this->find('all');
-		// ダミー
-
-			foreach ($data['associate1'] as $a1_key => $a1_value) {
-				foreach ($data['associate2'] as $a2_key => $a2_value) {
-					foreach ($templates as $tmp_key => $tmp_value) {
-						$question = $tmp_value['Template']['question'];
-						if(strstr($question,'O')){ //object1を挿入
-							$question = str_replace("[O]",$a1_value['Objective']['object'],$question);
-						}
-						if(strstr($question,'OO')){ //object1を挿入
-							$question = str_replace("[OO]",$a2_value['Object2id']['object'],$question);
-						}
-						if(strstr($question,'1P')){ //object1を挿入
-							$question = str_replace("[1P]",$a1_value['Property1st']['property1st'],$question);
-						}
-						if(strstr($question,'2P')){ //object1を挿入
-							$question = str_replace("[2P]",$a2_value['Property2nd']['property2nd'],$question);
-						}
-						$answer = $tmp_value['Template']['answer'];
-						if(strstr($answer,'O')){ //object1を挿入
-							$answer = str_replace("[O]",$a1_value['Objective']['object'],$answer);
-						}
-						if(strstr($answer,'OO')){ //object1を挿入
-							$answer = str_replace("[OO]",$a2_value['Object2id']['object'],$answer);
-						}
-						if(strstr($answer,'1P')){ //object1を挿入
-							$answer = str_replace("[1P]",$a1_value['Property1st']['property1st'],$answer);
-						}
-						if(strstr($answer,'2P')){ //object1を挿入
-							$answer = str_replace("[2P]",$a2_value['Property2nd']['property2nd'],$answer);
-						}
-						$questions['question'] = $question;
-						$questions['answer'] = $answer;
-
-						// $test_box[] = $a1_value['Objective']['object'];
-						$question_box[] = $questions;
-					}
-				}
-			}
-
-			$num= mt_rand(0,count($question_box)-1);
-			$ar_num = range(0,count($question_box)-1);
-			shuffle($ar_num);
-			for($i=0; $i<10 ;$i++){
-				$select_box[] = $question_box[$ar_num[$i]];
-			}
-			return $select_box;
+		}
+		return $maked_question;
 	}
 }
-
-
-
-			// foreach ($data['templates'] as $temp_key => $temp_value) { //次々とテンプレートにぶち込む
-			// 	// テンプレートに挿入
-			// 	foreach ($ as $key => $value) {
-			// 		# code...
-			// 	}
-			// 	if(strstr($temp_value['question'],'1O')){ //object1を挿入
-
-			// 	}
-
-
-
-
-
-			// 	if($key == "associate1"){ //associate1の知識を挿入するとき
-			// 		foreach ($temp_value as $temp2_key => $temp2_value) {
-			// 			$tmp1 = $temp_value['question'];
-			// 			$tmp1 = str_replace("[1P]",$temp2_value['Property_1st']['property_1st'],$tmp1);
-			// 			if($tmp1 != false)
-			// 				$tmp2 = $tmp1;
-			// 			$tmp2 = str_replace("[1O]",$temp2_value['Objective']['object'],$tmp2);
-			// 			if($tmp2 != false)
-			// 			$question = $tmp2;
-			// 		}
-			// 	}else if($key == "associate2"){　//associate2の知識を挿入するとき
-			// 		foreach ($temp_value as $temp2_key => $temp2_value) {
-			// 			$tmp1 = $temp_value['question'];
-			// 			$tmp1 = str_replace("[2P]",$temp2_value['Property2nd']['property_2nd'],$tmp1);
-			// 			if($tmp1 != false)
-			// 				$tmp2 = $tmp1;
-			// 			$tmp2 = str_replace("[20]",$temp2_value['Object2id']['object'],$tmp2);
-			// 			if($tmp2 != false)
-			// 				$tmp3 = $tmp2;
-			// 		}
-			// 	}
-
-
-			// 	$data[$key]['question'][] = $question;
-
-			// 	// 回答を挿入
-			// 	$tmp1 = $temp_value['answer'];
-			// 	$tmp1 = str_replace("[SUBJECT]",$value['Ontology']['subject'],$tmp1);
-			// 	if($tmp1 != false)
-			// 		$tmp2 = $tmp1;
-			// 	$tmp2 = str_replace("[PREDICATE]",$value['Ontology']['predicate'],$tmp2);
-			// 	if($tmp2 != false)
-			// 		$tmp3 = $tmp2;
-			// 	$tmp3 = str_replace("[OBJECT]",$value['Ontology']['object'],$tmp3);
-			// 	if($tmp3 != false)
-			// 		$tmp4 = $tmp3;
-			// 	$tmp4 = str_replace("[ADDITIONAL]",$value['Ontology']['additional'],$tmp4);
-			// 	if($tmp4 != false)
-			// 		$answer = $tmp4;
-			// 	$data[$key]['answer'][] = $answer;
-			// }
-
-		// foreach ($data as $key => $value){
-		// 	foreach ($value['Template'] as $temp_key => $temp_value) {
-		// 		// テンプレートに挿入
-		// 		$tmp1 = $temp_value['template'];
-		// 		$tmp1 = str_replace("[SUBJECT]",$value['Ontology']['subject'],$tmp1);
-		// 		if($tmp1 != false)
-		// 			$tmp2 = $tmp1;
-		// 		$tmp2 = str_replace("[PREDICATE]",$value['Ontology']['predicate'],$tmp2);
-		// 		if($tmp2 != false)
-		// 			$tmp3 = $tmp2;
-		// 		$tmp3 = str_replace("[OBJECT]",$value['Ontology']['object'],$tmp3);
-		// 		if($tmp3 != false)
-		// 			$tmp4 = $tmp3;
-		// 		$tmp4 = str_replace("[ADDITIONAL]",$value['Ontology']['additional'],$tmp4);
-		// 		if($tmp4 != false)
-		// 			$question = $tmp4;
-
-		// 		$data[$key]['question'][] = $question;
-
-		// 		// 回答を挿入
-		// 		$tmp1 = $temp_value['answer'];
-		// 		$tmp1 = str_replace("[SUBJECT]",$value['Ontology']['subject'],$tmp1);
-		// 		if($tmp1 != false)
-		// 			$tmp2 = $tmp1;
-		// 		$tmp2 = str_replace("[PREDICATE]",$value['Ontology']['predicate'],$tmp2);
-		// 		if($tmp2 != false)
-		// 			$tmp3 = $tmp2;
-		// 		$tmp3 = str_replace("[OBJECT]",$value['Ontology']['object'],$tmp3);
-		// 		if($tmp3 != false)
-		// 			$tmp4 = $tmp3;
-		// 		$tmp4 = str_replace("[ADDITIONAL]",$value['Ontology']['additional'],$tmp4);
-		// 		if($tmp4 != false)
-		// 			$answer = $tmp4;
-		// 		$data[$key]['answer'][] = $answer;
-		// 	}
-		// }
-?>

@@ -48,7 +48,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</a>
-				<a class="brand" href="#"><?php echo __('実験用システム'); ?></a>
+				<a class="brand" href="#"><?php echo __('作問支援システム β版'); ?></a>
 <!-- 				<div class="nav-collapse">
 					<ul class="nav">
 						<li class="active"><a href="#">Home</a></li>
