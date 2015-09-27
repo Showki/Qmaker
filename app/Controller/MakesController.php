@@ -2,20 +2,38 @@
 App::uses('AppController', 'Controller');
 
 class MakesController extends AppController {
-	public $uses = array('User','Knowledge');
+	public $uses = array('User','Knowledge','Template');
 
 	public function index(){
-
 	}
 
 	public function inputKeyword(){
 		$this->layout = 'default_make';
-
 	}
+
 	public function showKeywordsList(){
+		$this->layout = 'default_make';
 		$keyword = $this->request->data['Make']['keyword'];
-		$keywords_list = $this->Knowledge->remove_duplicate_list($keyword);
-		debug($keywords_list);
+		$keywords_list = $this->Knowledge->fetchObjectByKeyword($keyword);
+		if(!isset($keywords_list)){
+			$this->Session->setFlash(__('検索結果が 0件であったため、検索画面に戻ります'));
+			$this->redirect(array('controller'=>'makes','action'=>'inputKeyword'));
+		}else{
+			$this->set("keywords_list",$keywords_list);
+		}
+	}
+
+	public function showGeneratedQuestions($selected_keyword){
+		$searched_knowledge = $this->Knowledge->fetchKnowledge($selected_keyword);
+		$object_list = $this->Knowledge->fetchObject();
+		$generated_questions = $this->Template->generateQuestions($searched_knowledge,$object_list);
+		debug($generated_questions);
+
+
+
+		// debug($object_list);
+
+		// $this->set("generated_questions",$generated_questions);
 	}
 
 
