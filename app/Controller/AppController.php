@@ -33,7 +33,7 @@ App::uses('Controller', 'Controller');
 class AppController extends Controller {
 	public $helpers = array('Session','Js', 'Time','Html','Form','Paginator');
 	public $components = array(
-		'DebugKit.Toolbar',
+//		'DebugKit.Toolbar',
 		'Session',
         'Auth' => array( //ログイン機能を利用する
                 //ログイン後の移動先

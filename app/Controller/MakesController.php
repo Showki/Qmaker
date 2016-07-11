@@ -54,7 +54,8 @@ class MakesController extends AppController {
 
 		$object_list = $this->Knowledge->fetchObject();
 		$generated_questions = $this->Template->generateQuestions($searched_knowledge,$object_list);
-		$this->set("generated_questions",$generated_questions);
+     //     debug($generated_questions);
+          $this->set("generated_questions",$generated_questions);
 	}
 
 	public function editGeneratedQuestions(){
