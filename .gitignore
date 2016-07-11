@@ -1,6 +1,13 @@
 # User specific & automatically generated files #
 #################################################
 /app/tmp
+
+# htaccess
+.htaccess
+/app/.htaccess
+/app/webroot/.htaccess
+
+
 # OS generated files #
 ######################
 .DS_Store
