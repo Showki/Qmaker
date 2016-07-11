@@ -6,13 +6,18 @@
 <?php echo $this->Form->input('sentence',array(
 	'type' => 'textarea',
 	'label' => '選択した問題文を編集してください',
-	'value' => $selected_question['makes']['sentence']
-	));?>
+     'value' => $selected_question['makes']['sentence'],
+     'id' => "custom",
+     'cols' => 5,
+     ''
+ ));
+?>
 <?php echo $this->Form->input('answer',array(
 	'type' => 'textarea',
 	'label' => '選択した答を編集してください',
 	'value' => $selected_question['makes']['answer']
-	));?>
+ ));
+?>
 <br /><br />
 <?php echo $this->Form->submit('確定',array(
 	'name' => "decided_question",

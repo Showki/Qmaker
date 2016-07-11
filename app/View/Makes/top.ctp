@@ -29,8 +29,8 @@
 		</td>
 	</tr>
 <?php endforeach; ?>
-<? else :?>
+<?php else :?>
 <h2>(未登録)</h2>
-<? endif; ?>
+<?php endif; ?>
 </table>
 <br />
