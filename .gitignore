@@ -2,7 +2,6 @@
 #################################################
 /app/tmp
 
-# htaccess
 .htaccess
 /app/.htaccess
 /app/webroot/.htaccess
