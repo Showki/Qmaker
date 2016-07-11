@@ -6,7 +6,7 @@
 .htaccess
 /app/.htaccess
 /app/webroot/.htaccess
-
+/app/Config/database.php
 
 # OS generated files #
 ######################
