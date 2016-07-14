@@ -53,7 +53,7 @@ class MakesController extends AppController {
 		$this->Activity->save($activity_data);
 
 		$object_list = $this->Knowledge->fetchObject();
-		debug($object_list);
+		// debug($object_list);
 		$generated_questions = $this->Template->generateQuestions($searched_knowledge,$object_list);
      //     debug($generated_questions);
           $this->set("generated_questions",$generated_questions);
