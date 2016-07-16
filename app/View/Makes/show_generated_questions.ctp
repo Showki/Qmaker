@@ -5,7 +5,6 @@
 	array('controller'=>'makes','action'=>'top'),
 	array('class'=>'btn btn-inverse btn-large','escape'=>false)
  );
- debug($generated_questions);
 ?>
 
 <br />
