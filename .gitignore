@@ -2,10 +2,10 @@
 #################################################
 /app/tmp
 
-#.htaccess
-#/app/.htaccess
-#/app/webroot/.htaccess
-#/app/Config/database.php
+.htaccess
+/app/.htaccess
+/app/webroot/.htaccess
+/app/Config/database.php
 
 # OS generated files #
 ######################
